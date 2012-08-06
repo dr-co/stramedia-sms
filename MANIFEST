@@ -2,5 +2,4 @@ Changes
 lib/DR/StraMedia/SMS.pm
 Makefile.PL
 MANIFEST
-README
 t/01-dr-stamedia.t
