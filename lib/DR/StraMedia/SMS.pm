@@ -331,7 +331,8 @@ sub parse_status_response {
             id          => $id,
             status      => 'ok',
             code        => $code,
-            message     => $msg
+            message     => $msg,
+            time        => $time,
         };
     }
 
