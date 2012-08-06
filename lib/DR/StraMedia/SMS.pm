@@ -9,7 +9,10 @@ use Carp;
 use XML::LibXML;
 
 
-our @EXPORT_OK = ( 'build_request', 'parse_response' );
+our @EXPORT_OK = (
+    'build_request', 'parse_response',
+    'build_status_request', 'parse_status_response'
+);
 
 our @EXPORT = qw();
 
@@ -32,6 +35,10 @@ DR::StraMedia::SMS - a module to send SMS through L<http://stramedia.ru/>
 
     http_post $url => $body, sub { ... };
 
+
+=head1 DESCRIPTION
+
+The module provides low-level interface for L<stramedia|http://stramedia.ru>
 
 =head1 FUNCTIONS
 
@@ -145,6 +152,53 @@ sub build_request {
 }
 
 
+
+=head2 build_status_request
+
+Builds request that can be used for checking status of message that was sent.
+
+=head3 Arguments
+
+=over
+
+=item id
+
+Id of message that was sent
+
+=item username & password
+
+Access attributes to Your account of L<http://stramedia.ru>.
+
+=back
+
+=cut
+
+sub build_status_request {
+    my (%opts) = @_;
+
+    my $username    = $opts{username};
+    my $password    = $opts{password};
+    my $id          = $opts{id};
+
+    croak 'username was not defined' unless $username;
+    croak 'password was not defined' unless $password;
+    croak 'id was not defined' unless $id;
+
+    my $dom = XML::LibXML::Document->new('1.0', 'utf-8');
+    my $msg_t = _add_tag $dom => 'message';
+
+    _add_tag $msg_t => username     => $username;
+    _add_tag $msg_t => password     => $password;
+    _add_tag $msg_t => id           => $id;
+
+    return $dom->toString unless wantarray;
+    return(
+        'https://www.stramedia.ru/modules/xml_sms_status.php',
+        $dom->toString
+    );
+}
+
+
 =head2 parse_response
 
 Parses response, returns hash with the following items:
@@ -185,6 +239,55 @@ sub parse_response {
         message     => $msg || 'ok'
     } if $id;
     return { status => 'error', message => $msg || 'Can not parse response' };
+}
+
+
+=head2 parse_status_response
+
+Parses status response, returns hash with the following items:
+
+=over
+
+=item status => CODE | error
+
+Result of operation.
+
+=item message
+
+text of error (if status == error)
+
+=item id
+
+id of message that was sent
+
+=back
+
+=cut
+
+sub parse_status_response {
+    my ($resp) = @_;
+    return { status => 'error', message => 'undefined response' }
+        unless $resp;
+
+    my $xml = eval { XML::LibXML->load_xml(string => $resp) };
+    return { status => 'error', message => $@ || 'Can not parse XML' }
+        unless defined $xml;
+
+    my $time = eval {
+        $xml->getElementsByTagName('update_time')->shift->textContent
+    };
+    my $id = eval { $xml->getElementsByTagName('id')->shift->textContent };
+    my $code = eval {
+        $xml->getElementsByTagName('status')->shift->textContent
+    };
+
+    return {
+        id          => $id,
+        status      => 'ok',
+        code        => $code,
+        message     => 'ok'
+    } if $id;
+    return { status => 'error', message => 'Can not parse response' };
 }
 
 1;
