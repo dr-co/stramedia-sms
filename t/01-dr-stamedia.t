@@ -6,7 +6,7 @@ use utf8;
 use open qw(:std :utf8);
 use lib qw(lib ../lib);
 
-use Test::More tests    => 15;
+use Test::More tests    => 21;
 use Encode qw(decode encode);
 
 
@@ -37,7 +37,7 @@ ok $url, 'url';
 ok $xml, 'xml';
 
 SKIP: {
-    skip "Login and password wasn't defined", 12 unless $login and $password;
+    skip "Login and password wasn't defined", 18 unless $login and $password;
 
     require_ok 'LWP::UserAgent';
     require_ok 'HTTP::Request';
@@ -73,4 +73,21 @@ SKIP: {
     is $res->{status}, 'ok', 'message was sent';
     ok $res->{id}, 'id message';
     like $res->{code}, qr{^(0|1|2|4|8|16|32)$}, 'code';
+    like $res->{message}, qr{was sent}, 'message';
+
+    ($url, $xml) = build_status_request
+        username    => $login,
+        password    => $password,
+        id          => $res->{id} . 'aaa'
+    ;
+    ok $url, 'url';
+    ok $xml, 'xml';
+
+    $request = HTTP::Request->new( POST => $url, HTTP::Headers->new({}), $xml );
+    $res = $ua->request($request);
+
+    $res = parse_status_response $res->content;
+    isa_ok $res => 'HASH';
+    is $res->{status}, 'error', 'message was sent';
+    like $res->{message}, qr{Error}, 'message';
 };

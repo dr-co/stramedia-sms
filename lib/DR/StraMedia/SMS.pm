@@ -248,7 +248,7 @@ Parses status response, returns hash with the following items:
 
 =over
 
-=item status => CODE | error
+=item status => ok | error
 
 Result of operation.
 
@@ -256,9 +256,41 @@ Result of operation.
 
 text of error (if status == error)
 
-=item id
+=item code
 
-id of message that was sent
+code of message status.
+
+=over
+
+=item 0
+
+Message was sent to gate
+
+=item 1
+
+Message was delivered
+
+=item 2
+
+Client's phone refused message
+
+=item 4
+
+Message is in provider's queue
+
+=item 8
+
+Provider accepted message
+
+=item 16
+
+Provider refused message
+
+=item 32
+
+Gate refused message
+
+=back
 
 =back
 
@@ -281,13 +313,31 @@ sub parse_status_response {
         $xml->getElementsByTagName('status')->shift->textContent
     };
 
-    return {
-        id          => $id,
-        status      => 'ok',
-        code        => $code,
-        message     => 'ok'
-    } if $id;
-    return { status => 'error', message => 'Can not parse response' };
+    my %msgs = (
+        0       => 'Message was sent to gate',
+        1       => 'Message was delivered',
+        2       => "Client's phone refused message",
+        4       => "Message is in provider's queue",
+        8       => "Provider accepted message",
+        16      => "Provider refused message",
+        32      => "Gate refused message",
+    );
+
+    if ($id and defined $code) {
+        my $msg = $msgs{ $code };
+        $msg = "Unknown status message, code=$code" unless defined $msg;
+
+        return {
+            id          => $id,
+            status      => 'ok',
+            code        => $code,
+            message     => $msg
+        };
+    }
+
+    my $msg = eval { $xml->getElementsByTagName('text')->shift->textContent };
+
+    return { status => 'error', message => $msg || 'Can not parse response' };
 }
 
 1;
