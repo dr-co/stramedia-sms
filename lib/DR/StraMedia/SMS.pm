@@ -159,9 +159,9 @@ Result of operation.
 
 text of error (if status == error)
 
-=item ids
+=item id
 
-array of messages that were sent
+id of message that was sent
 
 =back
 
@@ -180,7 +180,7 @@ sub parse_response {
     my $id = eval { $xml->getElementsByTagName('msg_ids')->shift->textContent };
 
     return {
-        ids         => [ split /\s*[,;]\s*/, $id ],
+        id          => $id,
         status      => 'ok',
         message     => $msg || 'ok'
     } if $id;
