@@ -29,12 +29,18 @@ DR::StraMedia::SMS - a module to send SMS through L<http://stramedia.ru/>
     use DR::StraMedia::SMS;
     use AnyEvent::HTTP;
     my ($url, $body) = DR::StraMedia::SMS::build_request(
-        from    => 'My Nagios',
-        to      => '+7-123-45-67-89',
-        text    => 'hello world'
+        from        => 'My Nagios',
+        to          => '+7-123-45-67-89',
+        text        => 'hello world',
+        username    => 'username',
+        password    => 'password',
     );
 
-    http_post $url => $body, sub { ... };
+    http_post $url => $body, sub {
+        my ($body, $hdr) = @_;
+        my $res = DR::StraMedia::SMS::parse_response($body);
+        ...
+    };
 
 
 =head1 DESCRIPTION
