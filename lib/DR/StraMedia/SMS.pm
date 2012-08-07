@@ -433,4 +433,15 @@ sub parse_status_response {
     return { status => 'error', message => $msg || 'Can not parse response' };
 }
 
+
+=head2 LICENSE
+
+ Copyright (C) 2011 Dmitry E. Oboukhov <unera@debian.org>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.8 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut
+
 1;

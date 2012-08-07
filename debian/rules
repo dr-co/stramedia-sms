@@ -1,4 +1,17 @@
 #!/usr/bin/make -f
 
+version = $(shell dpkg-parsechangelog|grep ^Version	\
+	|awk '{print $$2}'|sed 's/-[[:digit:]]\+$$//'	\
+)
+package	= $(shell dpkg-parsechangelog|grep ^Source|awk '{print $$2}')
+
+tarball:
+	cd .. && tar \
+		--exclude=debian \
+		--exclude=.git \
+		-czvf $(package)_$(version).orig.tar.gz \
+		$(package)-$(version)
+	
 %:
 	dh $@
+
