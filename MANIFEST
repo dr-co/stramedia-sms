@@ -1,5 +1,12 @@
-Changes
 lib/DR/StraMedia/SMS.pm
 Makefile.PL
-MANIFEST
+Changes
 t/01-dr-stamedia.t
+debian/copyright
+debian/watch
+debian/source/format
+debian/control
+debian/compat
+debian/rules
+debian/changelog
+MANIFEST

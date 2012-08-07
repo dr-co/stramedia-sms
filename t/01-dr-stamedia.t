@@ -6,7 +6,7 @@ use utf8;
 use open qw(:std :utf8);
 use lib qw(lib ../lib);
 
-use Test::More tests    => 25;
+use Test::More tests    => 29;
 use Encode qw(decode encode);
 
 
@@ -31,6 +31,21 @@ my ($url, $xml) = build_request
         to          => $phone || '123-456-45-67',
         from        => 'test',
         text        => $text || 'test',
+    ;
+ok $url, 'url';
+ok $xml, 'xml';
+
+($url, $xml) = build_balance_request
+        username    => $login || 'abc',
+        password    => $password || 'cde',
+    ;
+ok $url, 'url';
+ok $xml, 'xml';
+
+($url, $xml) = build_status_request
+        username    => $login || 'abc',
+        password    => $password || 'cde',
+        id          => 123,
     ;
 ok $url, 'url';
 ok $xml, 'xml';

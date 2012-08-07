@@ -1,0 +1,5 @@
+libdr-stramedia-sms-perl (0.01-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Dmitry E. Oboukhov <unera@debian.org>  Tue, 7 Aug 2012 21:40:45 +0400

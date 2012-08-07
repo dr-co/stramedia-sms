@@ -10,6 +10,12 @@ WriteMakefile(
     }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/DR/StraMedia/SMS.pm', # retrieve abstract from module
-       AUTHOR         => 'Dmitry E. Oboukhov <unera@debian.org>') : ()),
-       LICENSE        => 'perl',
+    AUTHOR         => 'Dmitry E. Oboukhov <unera@debian.org>') : ()),
+    LICENSE        => 'perl',
+    META_MERGE => {
+        resources => {
+            homepage => 'https://github.com/unera/stramedia-sms',
+            bugtracker => 'https://github.com/unera/stramedia-sms/issues',
+        }
+    },
 );

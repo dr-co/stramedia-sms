@@ -1,0 +1,14 @@
+Source: libdr-stramedia-sms-perl
+Section: perl
+Priority: optional
+Maintainer: Dmitry E. Oboukhov <unera@debian.org>
+Build-Depends: debhelper (>= 8)
+Build-Depends-Indep: perl, libxml-libxml-perl
+Standards-Version: 3.9.2
+Homepage: http://search.cpan.org/dist/DR-StraMedia-SMS/
+
+Package: libdr-stramedia-sms-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends}, libxml-libxml-perl
+Description: a module to send SMS through http://stramedia.ru/
+ The module provides low-level interface for http://stramedia.ru
