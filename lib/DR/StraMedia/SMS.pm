@@ -11,7 +11,8 @@ use XML::LibXML;
 
 our @EXPORT_OK = (
     'build_request', 'parse_response',
-    'build_status_request', 'parse_status_response'
+    'build_status_request', 'parse_status_response',
+    'build_balance_request', 'parse_balance_response',
 );
 
 our @EXPORT = qw();
@@ -199,6 +200,93 @@ sub build_status_request {
 }
 
 
+=head2 build_balance_request
+
+Builds request for balance.
+
+=head3 Arguments
+
+=over
+
+=item username & password
+
+Access attributes to Your account of L<http://stramedia.ru>.
+
+=back
+
+=cut
+
+sub build_balance_request {
+    my %opts = @_;
+
+    my $username    = $opts{username};
+    my $password    = $opts{password};
+
+    croak 'username was not defined' unless $username;
+    croak 'password was not defined' unless $password;
+
+    my $dom = XML::LibXML::Document->new('1.0', 'utf-8');
+    my $msg_t = _add_tag $dom => 'message';
+
+    _add_tag $msg_t => username     => $username;
+    _add_tag $msg_t => password     => $password;
+
+    return $dom->toString unless wantarray;
+    return(
+        'https://www.stramedia.ru/modules/xml_sms_balance.php' => $dom->toString
+    );
+}
+
+
+=head2 parse_balance_response
+
+Parses balance response. Returns hash with the following items:
+
+=over
+
+=item status => ok | error
+
+Result of operation.
+
+=item time
+
+time of balance
+
+=item message
+
+error or balance message
+
+=back
+
+=cut
+
+sub parse_balance_response {
+    my ($resp) = @_;
+    return { status => 'error', message => 'undefined response' }
+        unless $resp;
+
+    my $xml = eval { XML::LibXML->load_xml(string => $resp) };
+    return { status => 'error', message => $@ || 'Can not parse XML' }
+        unless defined $xml;
+
+    my $msg = eval { $xml->getElementsByTagName('text')->shift->textContent };
+    my $balance = eval {
+        $xml->getElementsByTagName('balance')->shift->textContent
+    };
+    my $time = eval {
+        $xml->getElementsByTagName('balance_time')->shift->textContent
+    };
+
+    return {
+        status      => 'ok',
+        time        => $time,
+        balance     => $balance,
+        message     => $msg || "No balance message",
+    } if defined $balance;
+    return { status => 'error', message => $msg || 'Can not parse response' };
+}
+
+
 =head2 parse_response
 
 Parses response, returns hash with the following items:
@@ -291,6 +379,10 @@ Provider refused message
 Gate refused message
 
 =back
+
+=item time
+
+Time of message status
 
 =back
 
