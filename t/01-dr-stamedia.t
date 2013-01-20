@@ -51,7 +51,8 @@ ok $url, 'url';
 ok $xml, 'xml';
 
 SKIP: {
-    skip "Login and password wasn't defined", 22 unless $login and $password;
+    my $cnt = 22;
+    skip "Login and password wasn't defined", $cnt unless $login and $password;
 
     require_ok 'LWP::UserAgent';
     require_ok 'HTTP::Request';
@@ -70,7 +71,11 @@ SKIP: {
 
 
     isa_ok $res => 'HASH';
-    is $res->{status}, 'ok', 'message was sent';
+    unless (is $res->{status}, 'ok', 'message was sent') {
+        diag explain $res;
+        skip "Couldn't get balance", $cnt - 5;
+
+    }
     like $res->{balance}, qr{^-?\d+(\.\d+)?$}, 'balance: ' .
         ($res->{balance} || '');
     like $res->{message}, qr{Success}, 'message';
